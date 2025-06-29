@@ -1,9 +1,11 @@
 import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Header from './components/Header';
 import AnimatedBackground from './components/AnimatedBackground';
 import UserProfile from './components/UserProfile';
+import NotFound from './components/NotFound';
 
-function App() {
+function HomePage() {
   return (
     <div className="relative min-h-screen overflow-hidden">
       <AnimatedBackground />
@@ -26,6 +28,17 @@ function App() {
         </div>
       </main>
     </div>
+  );
+}
+
+function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </Router>
   );
 }
 
