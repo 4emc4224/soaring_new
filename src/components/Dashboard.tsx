@@ -16,7 +16,8 @@ import {
   MessageCircle,
   Send,
   Heart,
-  Reply
+  Reply,
+  Gamepad2
 } from 'lucide-react';
 
 interface DashboardProps {
@@ -40,6 +41,15 @@ interface Comment {
   timestamp: string;
   likes: number;
   isLiked: boolean;
+}
+
+interface Match {
+  id: number;
+  opponent: string;
+  result: 'Win' | 'Loss';
+  score: string;
+  time: string;
+  gameMode: string;
 }
 
 const Dashboard: React.FC<DashboardProps> = ({ isOpen, onClose, userData }) => {
@@ -81,6 +91,49 @@ const Dashboard: React.FC<DashboardProps> = ({ isOpen, onClose, userData }) => {
       timestamp: '2 days ago',
       likes: 6,
       isLiked: false
+    }
+  ]);
+
+  const [recentMatches] = useState<Match[]>([
+    { 
+      id: 1, 
+      opponent: 'Player123', 
+      result: 'Win', 
+      score: '16-12', 
+      time: '2 hours ago',
+      gameMode: 'Competitive'
+    },
+    { 
+      id: 2, 
+      opponent: 'ProGamer', 
+      result: 'Win', 
+      score: '16-8', 
+      time: '5 hours ago',
+      gameMode: 'Ranked'
+    },
+    { 
+      id: 3, 
+      opponent: 'SkillMaster', 
+      result: 'Loss', 
+      score: '14-16', 
+      time: '1 day ago',
+      gameMode: 'Tournament'
+    },
+    { 
+      id: 4, 
+      opponent: 'EliteSniper', 
+      result: 'Win', 
+      score: '16-10', 
+      time: '2 days ago',
+      gameMode: 'Competitive'
+    },
+    { 
+      id: 5, 
+      opponent: 'CyberWarrior', 
+      result: 'Win', 
+      score: '16-6', 
+      time: '3 days ago',
+      gameMode: 'Ranked'
     }
   ]);
 
@@ -177,6 +230,13 @@ const Dashboard: React.FC<DashboardProps> = ({ isOpen, onClose, userData }) => {
               Overview
             </button>
             <button 
+              className={`tab-btn ${activeTab === 'matches' ? 'active' : ''}`}
+              onClick={() => setActiveTab('matches')}
+            >
+              <Gamepad2 size={18} />
+              Matches
+            </button>
+            <button 
               className={`tab-btn ${activeTab === 'stats' ? 'active' : ''}`}
               onClick={() => setActiveTab('stats')}
             >
@@ -255,6 +315,52 @@ const Dashboard: React.FC<DashboardProps> = ({ isOpen, onClose, userData }) => {
                         <span className="activity-text">Promoted to Diamond rank</span>
                         <span className="activity-time">1 day ago</span>
                       </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'matches' && (
+              <div className="matches-content">
+                <h3 className="section-title">Recent Matches - Soaring League</h3>
+                <div className="matches-list">
+                  {recentMatches.map((match) => (
+                    <div key={match.id} className="match-item">
+                      <div className="match-info">
+                        <div className="match-opponent">
+                          <Gamepad2 size={16} className="match-icon" />
+                          <span className="opponent">{match.opponent}</span>
+                        </div>
+                        <div className="match-details">
+                          <span className="game-mode">{match.gameMode}</span>
+                          <span className="match-time">{match.time}</span>
+                        </div>
+                      </div>
+                      <div className="match-result">
+                        <span className="score">{match.score}</span>
+                        <span className={`result ${match.result.toLowerCase()}`}>
+                          {match.result}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                
+                <div className="league-stats">
+                  <h4 className="league-title">Soaring League Stats</h4>
+                  <div className="league-info">
+                    <div className="league-stat">
+                      <span className="league-label">League Rank</span>
+                      <span className="league-value">Diamond III</span>
+                    </div>
+                    <div className="league-stat">
+                      <span className="league-label">League Points</span>
+                      <span className="league-value">2,847 LP</span>
+                    </div>
+                    <div className="league-stat">
+                      <span className="league-label">Season Wins</span>
+                      <span className="league-value">89</span>
                     </div>
                   </div>
                 </div>
