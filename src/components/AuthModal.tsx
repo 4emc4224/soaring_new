@@ -7,6 +7,7 @@ interface AuthModalProps {
   mode: 'login' | 'register';
   onSwitchMode: (mode: 'login' | 'register') => void;
   onAuthSuccess: (formData: any) => void;
+  isAnimating?: boolean;
 }
 
 const AuthModal: React.FC<AuthModalProps> = ({ 
@@ -14,7 +15,8 @@ const AuthModal: React.FC<AuthModalProps> = ({
   onClose, 
   mode, 
   onSwitchMode, 
-  onAuthSuccess 
+  onAuthSuccess,
+  isAnimating = false
 }) => {
   const [formData, setFormData] = useState({
     email: '',
@@ -94,8 +96,8 @@ const AuthModal: React.FC<AuthModalProps> = ({
   };
 
   return (
-    <div className="auth-modal-overlay" onClick={onClose}>
-      <div className="auth-modal-box" onClick={(e) => e.stopPropagation()}>
+    <div className={`auth-modal-overlay ${isAnimating ? 'fade-out' : ''}`} onClick={onClose}>
+      <div className={`auth-modal-box ${isAnimating ? 'slide-out' : ''}`} onClick={(e) => e.stopPropagation()}>
         <div className="auth-glow-top-right"></div>
         <div className="auth-glow-bottom-left"></div>
         

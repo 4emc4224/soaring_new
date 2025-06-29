@@ -9,12 +9,12 @@ const UserProfile: React.FC = () => {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showDashboard, setShowDashboard] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
+  const [isAuthAnimating, setIsAuthAnimating] = useState(false);
 
   const userData = {
     username: 'soaringuser',
     email: 'user@soaring.com',
     avatar: null,
-    level: 42,
     coins: 15420,
     wins: 127,
     rank: 'Diamond'
@@ -26,16 +26,28 @@ const UserProfile: React.FC = () => {
   };
 
   const handleAuthSuccess = (formData: any) => {
-    setIsLoggedIn(true);
-    setShowAuthModal(false);
-    // Здесь можно добавить логику сохранения данных пользователя
+    setIsAuthAnimating(true);
+    
+    // Плавное скрытие модального окна
+    setTimeout(() => {
+      setShowAuthModal(false);
+      setIsLoggedIn(true);
+      setIsAuthAnimating(false);
+    }, 500);
+    
     console.log('User authenticated:', formData);
   };
 
   const handleLogout = () => {
-    setIsLoggedIn(false);
+    setIsAuthAnimating(true);
     setShowDropdown(false);
     setShowDashboard(false);
+    
+    // Плавное появление кнопок авторизации
+    setTimeout(() => {
+      setIsLoggedIn(false);
+      setIsAuthAnimating(false);
+    }, 300);
   };
 
   const handleDashboardOpen = () => {
@@ -43,12 +55,16 @@ const UserProfile: React.FC = () => {
     setShowDropdown(false);
   };
 
+  const handleDashboardClose = () => {
+    setShowDashboard(false);
+  };
+
   if (isLoggedIn) {
     return (
       <>
         <div className="user-profile-container">
           <div 
-            className="user-profile-logged-clean"
+            className={`user-profile-logged-clean ${isAuthAnimating ? 'fade-in' : ''}`}
             onClick={() => setShowDropdown(!showDropdown)}
           >
             <div className="user-avatar">
@@ -86,7 +102,7 @@ const UserProfile: React.FC = () => {
 
         <Dashboard 
           isOpen={showDashboard}
-          onClose={() => setShowDashboard(false)}
+          onClose={handleDashboardClose}
           userData={userData}
         />
       </>
@@ -96,7 +112,7 @@ const UserProfile: React.FC = () => {
   return (
     <>
       <div className="user-profile-container">
-        <div className="auth-buttons">
+        <div className={`auth-buttons ${isAuthAnimating ? 'fade-in' : ''}`}>
           <button 
             className="auth-btn login-btn"
             onClick={() => handleAuthClick('login')}
@@ -118,6 +134,7 @@ const UserProfile: React.FC = () => {
         mode={authMode}
         onSwitchMode={setAuthMode}
         onAuthSuccess={handleAuthSuccess}
+        isAnimating={isAuthAnimating}
       />
     </>
   );
