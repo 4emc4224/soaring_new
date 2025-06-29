@@ -17,7 +17,8 @@ import {
   Send,
   Heart,
   Reply,
-  Gamepad2
+  Gamepad2,
+  Crosshair
 } from 'lucide-react';
 
 interface DashboardProps {
@@ -82,15 +83,6 @@ const Dashboard: React.FC<DashboardProps> = ({ isOpen, onClose, userData }) => {
       timestamp: '1 day ago',
       likes: 15,
       isLiked: false
-    },
-    {
-      id: 4,
-      author: 'GameMaster',
-      avatar: null,
-      content: 'Your strategies are always on point. Thanks for the tips during our last game!',
-      timestamp: '2 days ago',
-      likes: 6,
-      isLiked: false
     }
   ]);
 
@@ -141,9 +133,9 @@ const Dashboard: React.FC<DashboardProps> = ({ isOpen, onClose, userData }) => {
 
   const stats = [
     { icon: Trophy, label: 'Wins', value: userData.wins, color: 'text-yellow-400' },
-    { icon: Target, label: 'Accuracy', value: '94.2%', color: 'text-green-400' },
-    { icon: Zap, label: 'Streak', value: '12', color: 'text-blue-400' },
-    { icon: Crown, label: 'Rank', value: userData.rank, color: 'text-purple-400' }
+    { icon: Crosshair, label: 'K/D Ratio', value: '2.4', color: 'text-green-400' },
+    { icon: Target, label: 'Win Rate', value: '81.4%', color: 'text-blue-400' },
+    { icon: Zap, label: 'Streak', value: '12', color: 'text-purple-400' }
   ];
 
   const achievements = [
@@ -208,14 +200,10 @@ const Dashboard: React.FC<DashboardProps> = ({ isOpen, onClose, userData }) => {
               <div className="user-info-large">
                 <h2 className="username-large">{userData.username}</h2>
                 <p className="user-email">{userData.email}</p>
-                <div className="rank-display">
-                  <Crown size={16} />
-                  <span className="rank-text">{userData.rank}</span>
-                </div>
               </div>
-              <div className="coins-display">
-                <Coins size={20} />
-                <span>{userData.coins.toLocaleString()}</span>
+              <div className="elo-display">
+                <Zap size={20} />
+                <span>ELO: {userData.coins.toLocaleString()}</span>
               </div>
             </div>
           </div>
@@ -251,13 +239,6 @@ const Dashboard: React.FC<DashboardProps> = ({ isOpen, onClose, userData }) => {
               Achievements
             </button>
             <button 
-              className={`tab-btn ${activeTab === 'comments' ? 'active' : ''}`}
-              onClick={() => setActiveTab('comments')}
-            >
-              <MessageCircle size={18} />
-              Comments
-            </button>
-            <button 
               className={`tab-btn ${activeTab === 'settings' ? 'active' : ''}`}
               onClick={() => setActiveTab('settings')}
             >
@@ -285,37 +266,82 @@ const Dashboard: React.FC<DashboardProps> = ({ isOpen, onClose, userData }) => {
                   ))}
                 </div>
 
-                {/* Recent Activity */}
-                <div className="recent-activity">
-                  <h3 className="section-title">Recent Activity</h3>
-                  <div className="activity-list">
-                    <div className="activity-item">
-                      <div className="activity-icon">
-                        <Trophy size={16} className="text-yellow-400" />
-                      </div>
-                      <div className="activity-info">
-                        <span className="activity-text">Won a match against ProGamer</span>
-                        <span className="activity-time">2 hours ago</span>
+                {/* Rank Display */}
+                <div className="rank-section">
+                  <div className="rank-card">
+                    <div className="rank-icon">
+                      <Crown size={32} className="text-purple-400" />
+                    </div>
+                    <div className="rank-info">
+                      <h3 className="rank-title">Current Rank</h3>
+                      <span className="rank-value">{userData.rank}</span>
+                      <div className="rank-progress">
+                        <div className="rank-progress-bar">
+                          <div className="rank-progress-fill" style={{ width: '75%' }}></div>
+                        </div>
+                        <span className="rank-progress-text">75% to next rank</span>
                       </div>
                     </div>
-                    <div className="activity-item">
-                      <div className="activity-icon">
-                        <Star size={16} className="text-blue-400" />
-                      </div>
-                      <div className="activity-info">
-                        <span className="activity-text">Achieved 12-win streak</span>
-                        <span className="activity-time">5 hours ago</span>
-                      </div>
+                  </div>
+                </div>
+
+                {/* Profile Comments */}
+                <div className="comments-section">
+                  <h3 className="section-title">
+                    <MessageCircle size={20} />
+                    Profile Comments
+                  </h3>
+                  
+                  {/* Comment Form */}
+                  <form onSubmit={handleCommentSubmit} className="comment-form">
+                    <div className="comment-input-container">
+                      <textarea
+                        value={newComment}
+                        onChange={(e) => setNewComment(e.target.value)}
+                        placeholder="Leave a comment about this player..."
+                        className="comment-input"
+                        rows={3}
+                      />
+                      <button type="submit" className="comment-submit-btn" disabled={!newComment.trim()}>
+                        <Send size={16} />
+                        Post Comment
+                      </button>
                     </div>
-                    <div className="activity-item">
-                      <div className="activity-icon">
-                        <Crown size={16} className="text-purple-400" />
+                  </form>
+
+                  {/* Comments List */}
+                  <div className="comments-list">
+                    {comments.map((comment) => (
+                      <div key={comment.id} className="comment-item">
+                        <div className="comment-avatar">
+                          {comment.avatar ? (
+                            <img src={comment.avatar} alt="Avatar" className="avatar-image" />
+                          ) : (
+                            <User size={20} />
+                          )}
+                        </div>
+                        <div className="comment-content">
+                          <div className="comment-header">
+                            <span className="comment-author">{comment.author}</span>
+                            <span className="comment-time">{comment.timestamp}</span>
+                          </div>
+                          <p className="comment-text">{comment.content}</p>
+                          <div className="comment-actions">
+                            <button 
+                              className={`comment-like-btn ${comment.isLiked ? 'liked' : ''}`}
+                              onClick={() => handleLikeComment(comment.id)}
+                            >
+                              <Heart size={14} />
+                              {comment.likes}
+                            </button>
+                            <button className="comment-reply-btn">
+                              <Reply size={14} />
+                              Reply
+                            </button>
+                          </div>
+                        </div>
                       </div>
-                      <div className="activity-info">
-                        <span className="activity-text">Promoted to Diamond rank</span>
-                        <span className="activity-time">1 day ago</span>
-                      </div>
-                    </div>
+                    ))}
                   </div>
                 </div>
               </div>
@@ -404,8 +430,8 @@ const Dashboard: React.FC<DashboardProps> = ({ isOpen, onClose, userData }) => {
                     <span className="stat-value">81.4%</span>
                   </div>
                   <div className="stat-row">
-                    <span className="stat-name">Average Score</span>
-                    <span className="stat-value">15.2</span>
+                    <span className="stat-name">K/D Ratio</span>
+                    <span className="stat-value">2.4</span>
                   </div>
                   <div className="stat-row">
                     <span className="stat-name">Best Streak</span>
@@ -415,64 +441,10 @@ const Dashboard: React.FC<DashboardProps> = ({ isOpen, onClose, userData }) => {
                     <span className="stat-name">Time Played</span>
                     <span className="stat-value">42h 15m</span>
                   </div>
-                </div>
-              </div>
-            )}
-
-            {activeTab === 'comments' && (
-              <div className="comments-content">
-                <h3 className="section-title">Profile Comments</h3>
-                
-                {/* Comment Form */}
-                <form onSubmit={handleCommentSubmit} className="comment-form">
-                  <div className="comment-input-container">
-                    <textarea
-                      value={newComment}
-                      onChange={(e) => setNewComment(e.target.value)}
-                      placeholder="Leave a comment about this player..."
-                      className="comment-input"
-                      rows={3}
-                    />
-                    <button type="submit" className="comment-submit-btn" disabled={!newComment.trim()}>
-                      <Send size={16} />
-                      Post Comment
-                    </button>
+                  <div className="stat-row">
+                    <span className="stat-name">ELO Rating</span>
+                    <span className="stat-value">{userData.coins.toLocaleString()}</span>
                   </div>
-                </form>
-
-                {/* Comments List */}
-                <div className="comments-list">
-                  {comments.map((comment) => (
-                    <div key={comment.id} className="comment-item">
-                      <div className="comment-avatar">
-                        {comment.avatar ? (
-                          <img src={comment.avatar} alt="Avatar" className="avatar-image" />
-                        ) : (
-                          <User size={20} />
-                        )}
-                      </div>
-                      <div className="comment-content">
-                        <div className="comment-header">
-                          <span className="comment-author">{comment.author}</span>
-                          <span className="comment-time">{comment.timestamp}</span>
-                        </div>
-                        <p className="comment-text">{comment.content}</p>
-                        <div className="comment-actions">
-                          <button 
-                            className={`comment-like-btn ${comment.isLiked ? 'liked' : ''}`}
-                            onClick={() => handleLikeComment(comment.id)}
-                          >
-                            <Heart size={14} />
-                            {comment.likes}
-                          </button>
-                          <button className="comment-reply-btn">
-                            <Reply size={14} />
-                            Reply
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
                 </div>
               </div>
             )}
