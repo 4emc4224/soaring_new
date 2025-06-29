@@ -3,22 +3,17 @@ import {
   X, 
   User, 
   Trophy, 
-  Star, 
-  Coins, 
   Activity, 
-  Target, 
-  Award, 
-  TrendingUp,
   Settings,
   Crown,
   Zap,
-  Shield,
   MessageCircle,
   Send,
   Heart,
   Reply,
   Gamepad2,
-  Crosshair
+  Crosshair,
+  Target
 } from 'lucide-react';
 
 interface DashboardProps {
@@ -32,6 +27,7 @@ interface DashboardProps {
     wins: number;
     rank: string;
   };
+  isAnimating?: boolean;
 }
 
 interface Comment {
@@ -53,7 +49,7 @@ interface Match {
   gameMode: string;
 }
 
-const Dashboard: React.FC<DashboardProps> = ({ isOpen, onClose, userData }) => {
+const Dashboard: React.FC<DashboardProps> = ({ isOpen, onClose, userData, isAnimating = false }) => {
   const [activeTab, setActiveTab] = useState('overview');
   const [newComment, setNewComment] = useState('');
   const [comments, setComments] = useState<Comment[]>([
@@ -138,13 +134,6 @@ const Dashboard: React.FC<DashboardProps> = ({ isOpen, onClose, userData }) => {
     { icon: Zap, label: 'Streak', value: '12', color: 'text-purple-400' }
   ];
 
-  const achievements = [
-    { icon: Shield, title: 'First Victory', description: 'Win your first match', unlocked: true },
-    { icon: Star, title: 'Rising Star', description: 'Reach high rank', unlocked: true },
-    { icon: Crown, title: 'Champion', description: 'Win 100 matches', unlocked: true },
-    { icon: Zap, title: 'Lightning Fast', description: 'Win in under 30 seconds', unlocked: false }
-  ];
-
   const handleCommentSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newComment.trim()) return;
@@ -177,8 +166,8 @@ const Dashboard: React.FC<DashboardProps> = ({ isOpen, onClose, userData }) => {
   };
 
   return (
-    <div className="dashboard-overlay" onClick={onClose}>
-      <div className="dashboard-container" onClick={(e) => e.stopPropagation()}>
+    <div className={`dashboard-overlay ${isAnimating ? 'fade-out' : ''}`} onClick={onClose}>
+      <div className={`dashboard-container ${isAnimating ? 'slide-out' : ''}`} onClick={(e) => e.stopPropagation()}>
         <div className="dashboard-glow-top-right"></div>
         <div className="dashboard-glow-bottom-left"></div>
         
@@ -208,7 +197,7 @@ const Dashboard: React.FC<DashboardProps> = ({ isOpen, onClose, userData }) => {
             </div>
           </div>
 
-          {/* Navigation Tabs */}
+          {/* Navigation Tabs - Only 3 tabs now */}
           <div className="dashboard-tabs">
             <button 
               className={`tab-btn ${activeTab === 'overview' ? 'active' : ''}`}
@@ -223,20 +212,6 @@ const Dashboard: React.FC<DashboardProps> = ({ isOpen, onClose, userData }) => {
             >
               <Gamepad2 size={18} />
               Matches
-            </button>
-            <button 
-              className={`tab-btn ${activeTab === 'stats' ? 'active' : ''}`}
-              onClick={() => setActiveTab('stats')}
-            >
-              <TrendingUp size={18} />
-              Statistics
-            </button>
-            <button 
-              className={`tab-btn ${activeTab === 'achievements' ? 'active' : ''}`}
-              onClick={() => setActiveTab('achievements')}
-            >
-              <Award size={18} />
-              Achievements
             </button>
             <button 
               className={`tab-btn ${activeTab === 'settings' ? 'active' : ''}`}
@@ -393,62 +368,6 @@ const Dashboard: React.FC<DashboardProps> = ({ isOpen, onClose, userData }) => {
               </div>
             )}
 
-            {activeTab === 'achievements' && (
-              <div className="achievements-content">
-                <h3 className="section-title">Achievements</h3>
-                <div className="achievements-grid">
-                  {achievements.map((achievement, index) => (
-                    <div key={index} className={`achievement-card ${achievement.unlocked ? 'unlocked' : 'locked'}`}>
-                      <div className="achievement-icon">
-                        <achievement.icon size={32} />
-                      </div>
-                      <div className="achievement-info">
-                        <h4 className="achievement-title">{achievement.title}</h4>
-                        <p className="achievement-description">{achievement.description}</p>
-                      </div>
-                      {achievement.unlocked && (
-                        <div className="achievement-badge">
-                          <Star size={16} />
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {activeTab === 'stats' && (
-              <div className="stats-content">
-                <h3 className="section-title">Detailed Statistics</h3>
-                <div className="detailed-stats">
-                  <div className="stat-row">
-                    <span className="stat-name">Total Matches</span>
-                    <span className="stat-value">156</span>
-                  </div>
-                  <div className="stat-row">
-                    <span className="stat-name">Win Rate</span>
-                    <span className="stat-value">81.4%</span>
-                  </div>
-                  <div className="stat-row">
-                    <span className="stat-name">K/D Ratio</span>
-                    <span className="stat-value">2.4</span>
-                  </div>
-                  <div className="stat-row">
-                    <span className="stat-name">Best Streak</span>
-                    <span className="stat-value">18</span>
-                  </div>
-                  <div className="stat-row">
-                    <span className="stat-name">Time Played</span>
-                    <span className="stat-value">42h 15m</span>
-                  </div>
-                  <div className="stat-row">
-                    <span className="stat-name">ELO Rating</span>
-                    <span className="stat-value">{userData.coins.toLocaleString()}</span>
-                  </div>
-                </div>
-              </div>
-            )}
-
             {activeTab === 'settings' && (
               <div className="settings-content">
                 <h3 className="section-title">Account Settings</h3>
@@ -471,6 +390,20 @@ const Dashboard: React.FC<DashboardProps> = ({ isOpen, onClose, userData }) => {
                     <span className="setting-name">Auto-match</span>
                     <label className="toggle-switch">
                       <input type="checkbox" />
+                      <span className="toggle-slider"></span>
+                    </label>
+                  </div>
+                  <div className="setting-item">
+                    <span className="setting-name">Show Profile to Public</span>
+                    <label className="toggle-switch">
+                      <input type="checkbox" defaultChecked />
+                      <span className="toggle-slider"></span>
+                    </label>
+                  </div>
+                  <div className="setting-item">
+                    <span className="setting-name">Allow Comments</span>
+                    <label className="toggle-switch">
+                      <input type="checkbox" defaultChecked />
                       <span className="toggle-slider"></span>
                     </label>
                   </div>

@@ -10,6 +10,7 @@ const UserProfile: React.FC = () => {
   const [showDashboard, setShowDashboard] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   const [isAuthAnimating, setIsAuthAnimating] = useState(false);
+  const [isDashboardAnimating, setIsDashboardAnimating] = useState(false);
 
   const userData = {
     username: 'soaringuser',
@@ -28,7 +29,7 @@ const UserProfile: React.FC = () => {
   const handleAuthSuccess = (formData: any) => {
     setIsAuthAnimating(true);
     
-    // Плавное скрытие модального окна
+    // Плавное скрытие модального окна авторизации
     setTimeout(() => {
       setShowAuthModal(false);
       setIsLoggedIn(true);
@@ -38,16 +39,33 @@ const UserProfile: React.FC = () => {
     console.log('User authenticated:', formData);
   };
 
-  const handleLogout = () => {
+  const handleAuthClose = () => {
     setIsAuthAnimating(true);
-    setShowDropdown(false);
-    setShowDashboard(false);
     
-    // Плавное появление кнопок авторизации
+    // Плавное скрытие модального окна
     setTimeout(() => {
-      setIsLoggedIn(false);
+      setShowAuthModal(false);
       setIsAuthAnimating(false);
-    }, 300);
+    }, 500);
+  };
+
+  const handleLogout = () => {
+    setShowDropdown(false);
+    setIsDashboardAnimating(true);
+    
+    // Если dashboard открыт, сначала закрываем его
+    if (showDashboard) {
+      setTimeout(() => {
+        setShowDashboard(false);
+        setIsLoggedIn(false);
+        setIsDashboardAnimating(false);
+      }, 500);
+    } else {
+      setTimeout(() => {
+        setIsLoggedIn(false);
+        setIsDashboardAnimating(false);
+      }, 300);
+    }
   };
 
   const handleDashboardOpen = () => {
@@ -56,7 +74,13 @@ const UserProfile: React.FC = () => {
   };
 
   const handleDashboardClose = () => {
-    setShowDashboard(false);
+    setIsDashboardAnimating(true);
+    
+    // Плавное скрытие dashboard
+    setTimeout(() => {
+      setShowDashboard(false);
+      setIsDashboardAnimating(false);
+    }, 500);
   };
 
   if (isLoggedIn) {
@@ -64,7 +88,7 @@ const UserProfile: React.FC = () => {
       <>
         <div className="user-profile-container">
           <div 
-            className={`user-profile-logged-clean ${isAuthAnimating ? 'fade-in' : ''}`}
+            className={`user-profile-logged-clean ${isDashboardAnimating ? 'fade-out' : 'fade-in'}`}
             onClick={() => setShowDropdown(!showDropdown)}
           >
             <div className="user-avatar">
@@ -104,6 +128,7 @@ const UserProfile: React.FC = () => {
           isOpen={showDashboard}
           onClose={handleDashboardClose}
           userData={userData}
+          isAnimating={isDashboardAnimating}
         />
       </>
     );
@@ -112,7 +137,7 @@ const UserProfile: React.FC = () => {
   return (
     <>
       <div className="user-profile-container">
-        <div className={`auth-buttons ${isAuthAnimating ? 'fade-in' : ''}`}>
+        <div className={`auth-buttons ${isAuthAnimating ? 'fade-out' : 'fade-in'}`}>
           <button 
             className="auth-btn login-btn"
             onClick={() => handleAuthClick('login')}
@@ -130,7 +155,7 @@ const UserProfile: React.FC = () => {
 
       <AuthModal
         isOpen={showAuthModal}
-        onClose={() => setShowAuthModal(false)}
+        onClose={handleAuthClose}
         mode={authMode}
         onSwitchMode={setAuthMode}
         onAuthSuccess={handleAuthSuccess}
