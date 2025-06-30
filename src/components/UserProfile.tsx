@@ -3,7 +3,11 @@ import { User, ChevronDown, Settings, LogOut, Coins, Activity } from 'lucide-rea
 import AuthModal from './AuthModal';
 import Dashboard from './Dashboard';
 
-const UserProfile: React.FC = () => {
+interface UserProfileProps {
+  onAuthSuccess?: (success: boolean) => void;
+}
+
+const UserProfile: React.FC<UserProfileProps> = ({ onAuthSuccess }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -34,6 +38,7 @@ const UserProfile: React.FC = () => {
       setShowAuthModal(false);
       setIsLoggedIn(true);
       setIsAuthAnimating(false);
+      onAuthSuccess?.(true);
     }, 500);
     
     console.log('User authenticated:', formData);
@@ -59,11 +64,13 @@ const UserProfile: React.FC = () => {
         setShowDashboard(false);
         setIsLoggedIn(false);
         setIsDashboardAnimating(false);
+        onAuthSuccess?.(false);
       }, 500);
     } else {
       setTimeout(() => {
         setIsLoggedIn(false);
         setIsDashboardAnimating(false);
+        onAuthSuccess?.(false);
       }, 300);
     }
   };
