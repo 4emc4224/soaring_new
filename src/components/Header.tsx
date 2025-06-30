@@ -45,3 +45,5 @@ const Header: React.FC<HeaderProps> = ({ isLoggedIn = false, userData }) => {
     </>
   );
 };
+
+export default Header;
