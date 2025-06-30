@@ -9,8 +9,7 @@ import {
   CheckCircle, 
   AlertCircle,
   User,
-  Calendar,
-  ArrowLeft
+  Calendar
 } from 'lucide-react';
 
 interface Ticket {
@@ -52,7 +51,6 @@ const TicketSystem: React.FC<TicketSystemProps> = ({ isOpen, onClose, userData }
     priority: 'medium' as 'low' | 'medium' | 'high',
     description: ''
   });
-  const [isAnimating, setIsAnimating] = useState(false);
 
   const [tickets, setTickets] = useState<Ticket[]>([
     {
@@ -153,28 +151,7 @@ const TicketSystem: React.FC<TicketSystemProps> = ({ isOpen, onClose, userData }
 
     setTickets([ticket, ...tickets]);
     setNewTicket({ title: '', category: 'general', priority: 'medium', description: '' });
-    handleViewChange('list');
-  };
-
-  const handleViewChange = (view: 'list' | 'chat' | 'create') => {
-    setIsAnimating(true);
-    setTimeout(() => {
-      setActiveView(view);
-      setIsAnimating(false);
-    }, 150);
-  };
-
-  const handleTicketSelect = (ticket: Ticket) => {
-    setSelectedTicket(ticket);
-    handleViewChange('chat');
-  };
-
-  const handleClose = () => {
-    setIsAnimating(true);
-    setTimeout(() => {
-      onClose();
-      setIsAnimating(false);
-    }, 300);
+    setActiveView('list');
   };
 
   const getStatusIcon = (status: string) => {
@@ -196,12 +173,12 @@ const TicketSystem: React.FC<TicketSystemProps> = ({ isOpen, onClose, userData }
   };
 
   return (
-    <div className={`ticket-overlay ${isAnimating ? 'fade-out' : ''}`} onClick={handleClose}>
-      <div className={`ticket-container ${isAnimating ? 'slide-out' : ''}`} onClick={(e) => e.stopPropagation()}>
+    <div className="ticket-overlay" onClick={onClose}>
+      <div className="ticket-container" onClick={(e) => e.stopPropagation()}>
         <div className="ticket-glow-top-right"></div>
         <div className="ticket-glow-bottom-left"></div>
         
-        <button className="ticket-close-btn" onClick={handleClose}>
+        <button className="ticket-close-btn" onClick={onClose}>
           <X size={24} />
         </button>
 
@@ -212,13 +189,13 @@ const TicketSystem: React.FC<TicketSystemProps> = ({ isOpen, onClose, userData }
             <div className="ticket-nav">
               <button 
                 className={`ticket-nav-btn ${activeView === 'list' ? 'active' : ''}`}
-                onClick={() => handleViewChange('list')}
+                onClick={() => setActiveView('list')}
               >
                 My Tickets
               </button>
               <button 
                 className="ticket-create-btn"
-                onClick={() => handleViewChange('create')}
+                onClick={() => setActiveView('create')}
               >
                 <Plus size={16} />
                 New Ticket
@@ -226,185 +203,182 @@ const TicketSystem: React.FC<TicketSystemProps> = ({ isOpen, onClose, userData }
             </div>
           </div>
 
-          {/* Content with smooth transitions */}
-          <div className="ticket-body">
-            {/* Ticket List View */}
-            <div className={`ticket-view ${activeView === 'list' ? 'active' : ''}`}>
-              <div className="ticket-list">
-                {tickets.length === 0 ? (
-                  <div className="empty-tickets">
-                    <MessageCircle size={48} className="empty-icon" />
-                    <h3>No tickets yet</h3>
-                    <p>Create your first support ticket to get help</p>
-                  </div>
-                ) : (
-                  tickets.map((ticket) => (
-                    <div 
-                      key={ticket.id} 
-                      className="ticket-item"
-                      onClick={() => handleTicketSelect(ticket)}
-                    >
-                      <div className="ticket-item-header">
-                        <div className="ticket-item-status">
-                          {getStatusIcon(ticket.status)}
-                          <span className="ticket-status-text">{ticket.status}</span>
-                        </div>
-                        <span className={`ticket-priority ${getPriorityColor(ticket.priority)}`}>
-                          {ticket.priority}
-                        </span>
-                      </div>
-                      <h3 className="ticket-item-title">{ticket.title}</h3>
-                      <div className="ticket-item-meta">
-                        <span className="ticket-category">{ticket.category}</span>
-                        <span className="ticket-date">
-                          <Calendar size={14} />
-                          {ticket.createdAt}
-                        </span>
-                        <span className="ticket-last-reply">Last reply: {ticket.lastReply}</span>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
-
-            {/* Create Ticket View */}
-            <div className={`ticket-view ${activeView === 'create' ? 'active' : ''}`}>
-              <div className="create-ticket">
-                <h3 className="create-ticket-title">Create New Ticket</h3>
-                <form onSubmit={handleCreateTicket} className="create-ticket-form">
-                  <div className="form-group">
-                    <label className="form-label">Title</label>
-                    <input
-                      type="text"
-                      value={newTicket.title}
-                      onChange={(e) => setNewTicket({ ...newTicket, title: e.target.value })}
-                      placeholder="Brief description of your issue"
-                      className="form-input"
-                      required
-                    />
-                  </div>
-                  
-                  <div className="form-row">
-                    <div className="form-group">
-                      <label className="form-label">Category</label>
-                      <select
-                        value={newTicket.category}
-                        onChange={(e) => setNewTicket({ ...newTicket, category: e.target.value })}
-                        className="form-select"
-                      >
-                        <option value="general">General</option>
-                        <option value="account">Account</option>
-                        <option value="billing">Billing</option>
-                        <option value="technical">Technical</option>
-                        <option value="bug">Bug Report</option>
-                      </select>
-                    </div>
-                    
-                    <div className="form-group">
-                      <label className="form-label">Priority</label>
-                      <select
-                        value={newTicket.priority}
-                        onChange={(e) => setNewTicket({ ...newTicket, priority: e.target.value as 'low' | 'medium' | 'high' })}
-                        className="form-select"
-                      >
-                        <option value="low">Low</option>
-                        <option value="medium">Medium</option>
-                        <option value="high">High</option>
-                      </select>
-                    </div>
-                  </div>
-                  
-                  <div className="form-group">
-                    <label className="form-label">Description</label>
-                    <textarea
-                      value={newTicket.description}
-                      onChange={(e) => setNewTicket({ ...newTicket, description: e.target.value })}
-                      placeholder="Detailed description of your issue..."
-                      className="form-textarea"
-                      rows={6}
-                      required
-                    />
-                  </div>
-                  
-                  <div className="form-actions">
-                    <button type="button" className="btn-secondary" onClick={() => handleViewChange('list')}>
-                      Cancel
-                    </button>
-                    <button type="submit" className="btn-primary">
-                      Create Ticket
-                    </button>
-                  </div>
-                </form>
-              </div>
-            </div>
-
-            {/* Chat View */}
-            <div className={`ticket-view ${activeView === 'chat' ? 'active' : ''}`}>
-              {selectedTicket && (
-                <div className="ticket-chat">
-                  <div className="chat-header">
-                    <button className="back-btn" onClick={() => handleViewChange('list')}>
-                      <ArrowLeft size={18} />
-                      Back to tickets
-                    </button>
-                    <div className="chat-ticket-info">
-                      <h3 className="chat-ticket-title">{selectedTicket.title}</h3>
-                      <div className="chat-ticket-meta">
-                        {getStatusIcon(selectedTicket.status)}
-                        <span>{selectedTicket.status}</span>
-                        <span className={getPriorityColor(selectedTicket.priority)}>
-                          {selectedTicket.priority} priority
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="chat-messages">
-                    {selectedTicket.messages.map((message) => (
-                      <div key={message.id} className={`message ${message.isAdmin ? 'admin' : 'user'}`}>
-                        <div className="message-avatar">
-                          <User size={20} />
-                        </div>
-                        <div className="message-content">
-                          <div className="message-header">
-                            <span className="message-author">
-                              {message.isAdmin ? 'Support Team' : message.author}
-                            </span>
-                            <span className="message-time">{message.timestamp}</span>
-                          </div>
-                          <p className="message-text">{message.content}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  <form onSubmit={handleSendMessage} className="chat-input-form">
-                    <div className="chat-message-box">
-                      <div className="file-upload-wrapper">
-                        <label htmlFor="file">
-                          <Paperclip size={18} />
-                          <span className="tooltip">Add attachment</span>
-                        </label>
-                        <input type="file" id="file" name="file" />
-                      </div>
-                      <input
-                        required
-                        placeholder="Type your message..."
-                        type="text"
-                        value={newMessage}
-                        onChange={(e) => setNewMessage(e.target.value)}
-                        className="message-input"
-                      />
-                      <button type="submit" className="send-button" disabled={!newMessage.trim()}>
-                        <Send size={18} />
-                      </button>
-                    </div>
-                  </form>
+          {/* Ticket List View */}
+          {activeView === 'list' && (
+            <div className="ticket-list">
+              {tickets.length === 0 ? (
+                <div className="empty-tickets">
+                  <MessageCircle size={48} className="empty-icon" />
+                  <h3>No tickets yet</h3>
+                  <p>Create your first support ticket to get help</p>
                 </div>
+              ) : (
+                tickets.map((ticket) => (
+                  <div 
+                    key={ticket.id} 
+                    className="ticket-item"
+                    onClick={() => {
+                      setSelectedTicket(ticket);
+                      setActiveView('chat');
+                    }}
+                  >
+                    <div className="ticket-item-header">
+                      <div className="ticket-item-status">
+                        {getStatusIcon(ticket.status)}
+                        <span className="ticket-status-text">{ticket.status}</span>
+                      </div>
+                      <span className={`ticket-priority ${getPriorityColor(ticket.priority)}`}>
+                        {ticket.priority}
+                      </span>
+                    </div>
+                    <h3 className="ticket-item-title">{ticket.title}</h3>
+                    <div className="ticket-item-meta">
+                      <span className="ticket-category">{ticket.category}</span>
+                      <span className="ticket-date">
+                        <Calendar size={14} />
+                        {ticket.createdAt}
+                      </span>
+                      <span className="ticket-last-reply">Last reply: {ticket.lastReply}</span>
+                    </div>
+                  </div>
+                ))
               )}
             </div>
-          </div>
+          )}
+
+          {/* Create Ticket View */}
+          {activeView === 'create' && (
+            <div className="create-ticket">
+              <h3 className="create-ticket-title">Create New Ticket</h3>
+              <form onSubmit={handleCreateTicket} className="create-ticket-form">
+                <div className="form-group">
+                  <label className="form-label">Title</label>
+                  <input
+                    type="text"
+                    value={newTicket.title}
+                    onChange={(e) => setNewTicket({ ...newTicket, title: e.target.value })}
+                    placeholder="Brief description of your issue"
+                    className="form-input"
+                    required
+                  />
+                </div>
+                
+                <div className="form-row">
+                  <div className="form-group">
+                    <label className="form-label">Category</label>
+                    <select
+                      value={newTicket.category}
+                      onChange={(e) => setNewTicket({ ...newTicket, category: e.target.value })}
+                      className="form-select"
+                    >
+                      <option value="general">General</option>
+                      <option value="account">Account</option>
+                      <option value="billing">Billing</option>
+                      <option value="technical">Technical</option>
+                      <option value="bug">Bug Report</option>
+                    </select>
+                  </div>
+                  
+                  <div className="form-group">
+                    <label className="form-label">Priority</label>
+                    <select
+                      value={newTicket.priority}
+                      onChange={(e) => setNewTicket({ ...newTicket, priority: e.target.value as 'low' | 'medium' | 'high' })}
+                      className="form-select"
+                    >
+                      <option value="low">Low</option>
+                      <option value="medium">Medium</option>
+                      <option value="high">High</option>
+                    </select>
+                  </div>
+                </div>
+                
+                <div className="form-group">
+                  <label className="form-label">Description</label>
+                  <textarea
+                    value={newTicket.description}
+                    onChange={(e) => setNewTicket({ ...newTicket, description: e.target.value })}
+                    placeholder="Detailed description of your issue..."
+                    className="form-textarea"
+                    rows={6}
+                    required
+                  />
+                </div>
+                
+                <div className="form-actions">
+                  <button type="button" className="btn-secondary" onClick={() => setActiveView('list')}>
+                    Cancel
+                  </button>
+                  <button type="submit" className="btn-primary">
+                    Create Ticket
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
+
+          {/* Chat View */}
+          {activeView === 'chat' && selectedTicket && (
+            <div className="ticket-chat">
+              <div className="chat-header">
+                <button className="back-btn" onClick={() => setActiveView('list')}>
+                  ← Back to tickets
+                </button>
+                <div className="chat-ticket-info">
+                  <h3 className="chat-ticket-title">{selectedTicket.title}</h3>
+                  <div className="chat-ticket-meta">
+                    {getStatusIcon(selectedTicket.status)}
+                    <span>{selectedTicket.status}</span>
+                    <span className={getPriorityColor(selectedTicket.priority)}>
+                      {selectedTicket.priority} priority
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="chat-messages">
+                {selectedTicket.messages.map((message) => (
+                  <div key={message.id} className={`message ${message.isAdmin ? 'admin' : 'user'}`}>
+                    <div className="message-avatar">
+                      <User size={20} />
+                    </div>
+                    <div className="message-content">
+                      <div className="message-header">
+                        <span className="message-author">
+                          {message.isAdmin ? 'Support Team' : message.author}
+                        </span>
+                        <span className="message-time">{message.timestamp}</span>
+                      </div>
+                      <p className="message-text">{message.content}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <form onSubmit={handleSendMessage} className="chat-input-form">
+                <div className="chat-message-box">
+                  <div className="file-upload-wrapper">
+                    <label htmlFor="file">
+                      <Paperclip size={18} />
+                      <span className="tooltip">Add attachment</span>
+                    </label>
+                    <input type="file" id="file" name="file" />
+                  </div>
+                  <input
+                    required
+                    placeholder="Type your message..."
+                    type="text"
+                    value={newMessage}
+                    onChange={(e) => setNewMessage(e.target.value)}
+                    className="message-input"
+                  />
+                  <button type="submit" className="send-button" disabled={!newMessage.trim()}>
+                    <Send size={18} />
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
         </div>
       </div>
     </div>
