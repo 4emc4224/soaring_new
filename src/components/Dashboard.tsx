@@ -222,9 +222,10 @@ const Dashboard: React.FC<DashboardProps> = ({ isOpen, onClose, userData, isAnim
             </button>
           </div>
 
-          {/* Content */}
+          {/* Content with Smooth Transitions */}
           <div className="dashboard-body">
-            {activeTab === 'overview' && (
+            {/* Overview Tab */}
+            <div className={`tab-content ${activeTab === 'overview' ? 'active' : ''}`}>
               <div className="overview-content">
                 {/* Stats Grid */}
                 <div className="stats-grid">
@@ -320,9 +321,10 @@ const Dashboard: React.FC<DashboardProps> = ({ isOpen, onClose, userData, isAnim
                   </div>
                 </div>
               </div>
-            )}
+            </div>
 
-            {activeTab === 'matches' && (
+            {/* Matches Tab */}
+            <div className={`tab-content ${activeTab === 'matches' ? 'active' : ''}`}>
               <div className="matches-content">
                 <h3 className="section-title">Recent Matches - Soaring League</h3>
                 <div className="matches-list">
@@ -366,9 +368,10 @@ const Dashboard: React.FC<DashboardProps> = ({ isOpen, onClose, userData, isAnim
                   </div>
                 </div>
               </div>
-            )}
+            </div>
 
-            {activeTab === 'settings' && (
+            {/* Settings Tab */}
+            <div className={`tab-content ${activeTab === 'settings' ? 'active' : ''}`}>
               <div className="settings-content">
                 <h3 className="section-title">Account Settings</h3>
                 <div className="settings-list">
@@ -409,7 +412,7 @@ const Dashboard: React.FC<DashboardProps> = ({ isOpen, onClose, userData, isAnim
                   </div>
                 </div>
               </div>
-            )}
+            </div>
           </div>
         </div>
       </div>
