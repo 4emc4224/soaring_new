@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import Navigation from './Navigation';
-import { MessageCircle } from 'lucide-react';
 import TicketSystem from './TicketSystem';
 
 interface HeaderProps {
@@ -23,12 +22,11 @@ const Header: React.FC<HeaderProps> = ({ isLoggedIn = false, userData }) => {
           {/* Ticket System Button - Only show when logged in */}
           {isLoggedIn && userData && (
             <button 
-              className="ticket-btn"
+              className="support-text-btn"
               onClick={() => setShowTicketSystem(true)}
               title="Support Tickets"
             >
-              <MessageCircle size={18} />
-              <span>Support</span>
+              Support
             </button>
           )}
         </div>
